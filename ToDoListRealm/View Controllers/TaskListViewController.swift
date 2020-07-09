@@ -11,140 +11,59 @@ import RealmSwift
 
 class TaskListViewController: UITableViewController {
     
-    var currentTaskLists: Results<TaskList>!
-    var taskListsSortedByAZ: Results<TaskList>!
-    var taskListSortedByDate: Results<TaskList>!
+    var taskLists: Results<TaskList>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        taskListsSortedByAZ = StorageManager.shared.realm.objects(TaskList.self).sorted(byKeyPath: "date", ascending: false)
-        taskListSortedByDate = StorageManager.shared.realm.objects(TaskList.self).sorted(byKeyPath: "name", ascending: false)
-        currentTaskLists = taskListsSortedByAZ
         
+        taskLists = StorageManager.shared.realm.objects(TaskList.self).sorted(byKeyPath: "name")
         navigationItem.leftBarButtonItem = editButtonItem
-        
-        //  Для первой записи данных
-//        let shoppingList = TaskList()
-//        shoppingList.name = "ShoppingList"
-//
-//        let milk = Task()
-//        milk.name = "Milk"
-//        milk.note = "2L"
-//
-//        let bread = Task()
-//        bread.name = "Bread"
-//
-//        let apples = Task(value: ["name": "Apples", "note": "1kg", "isComplete": false])
-//
-//        shoppingList.tasks.append(milk)
-//        shoppingList.tasks.append(bread)
-//        shoppingList.tasks.append(apples)
-//
-//        DispatchQueue.main.async {
-//            StorageManager.shared.save(taskLists: [shoppingList])
-//        }
-//        let studyList = TaskList()
-//        studyList.name = "Study list"
-//
-//        let swift = Task()
-//        swift.name = "Swift"
-//        swift.note = "closures"
-//        let english = Task(value: ["name": "English", "note": "verbs", "isComplete": true])
-//
-//        studyList.tasks.append(swift)
-//        studyList.tasks.append(english)
-//
-//        let sportList = TaskList()
-//        sportList.name = "Sport"
-//
-//        let running = Task(value: ["name": "Running", "note": "3 km", "isComplete": true])
-//        let jumping = Task(value: ["name": "Jumping", "note": "50 times"])
-//
-//        sportList.tasks.append(running)
-//        sportList.tasks.append(jumping)
-//
-//        DispatchQueue.main.async {
-//            StorageManager.shared.save(taskLists: [studyList, sportList])
-//        }
-//
-//        let relaxList = TaskList()
-//        relaxList.name = "Relax"
-//
-//        let someCinema = Task(value: ["name": "Some Cinema", "note": "at 17:30"])
-//        let someRestaurant = Task(value: ["name": "Some Restaurant", "note": "dinner"])
-//
-//        relaxList.tasks.append(someRestaurant)
-//        relaxList.tasks.append(someCinema)
-//
-//        DispatchQueue.main.async {
-//            StorageManager.shared.save(taskLists: [relaxList])
-//        }
                 
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
         tableView.reloadData()
     }
     
     
-    //MARK: -IB Actions
-    
-    @IBAction func addTaskList(_ sender: UIBarButtonItem) {
-        showAlert(for: nil, editingModeIsOn: false)
-    }
-    
-    @IBAction func sortingLists(_ sender: UISegmentedControl) {
-        switch sender.selectedSegmentIndex {
-        case 0:
-            currentTaskLists = taskListsSortedByAZ
-            tableView.reloadData()
-        default:
-            currentTaskLists = taskListSortedByDate
-            tableView.reloadData()
-        }
-    }
 
 
     // MARK: - Table view data source
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        currentTaskLists.count
+        taskLists.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskListCell", for: indexPath)
         
-        let currentList = currentTaskLists[indexPath.row]
-        let currentTasksInCurrentList = currentTaskLists[indexPath.row].tasks.filter("isComplete = false").count
-        cell.textLabel?.text = currentList.name
-        if currentTasksInCurrentList > 0 {
-            cell.detailTextLabel?.text = "\(currentTasksInCurrentList)"
-            cell.detailTextLabel?.textColor = .black
-        } else {
-            cell.detailTextLabel?.text = "✓"
-            cell.detailTextLabel?.textColor = .blue
-        }
+        let taskList = taskLists[indexPath.row]
+        cell.configure(with: taskList)
+        
         return cell
     }
     
     //MARK: -Table view Delegate
     override func tableView(_ tableView: UITableView,
                             trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let taskList = currentTaskLists[indexPath.row]
+        let taskList = taskLists[indexPath.row]
         
-        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") {_, _ ,_ in
-            StorageManager.shared.deleteTaskList(taskList)
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") {(_, _ ,_) in
+            StorageManager.shared.delete(taskList: taskList)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
         }
-        let editAction = UIContextualAction(style: .normal, title: "Edit") { _, _ ,_ in
-            self.showAlert(for: taskList, editingModeIsOn: true)
-            tableView.reloadRows(at: [indexPath], with: .automatic)
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { (_, _ ,isDone) in
+            self.showAlert(with: taskList) {
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+            isDone(true)
+            
         }
         
-        let doneAction = UIContextualAction(style: .normal, title: "Done") { _, _, _ in
-            StorageManager.shared.editTaskList(taskList, newName: taskList.name, allIsComplete: true)
+        let doneAction = UIContextualAction(style: .normal, title: "Done") { (_, _, isDone) in
+            StorageManager.shared.done(taskList: taskList)
             tableView.reloadRows(at: [indexPath], with: .automatic)
+            isDone(true)
         }
         
         editAction.backgroundColor = .orange
@@ -153,18 +72,27 @@ class TaskListViewController: UITableViewController {
         return UISwipeActionsConfiguration(actions: [doneAction, editAction, deleteAction])
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+    
+    //MARK: -IB Actions
+    @IBAction func addTaskList(_ sender: UIBarButtonItem) {
+        showAlert()
+    }
+    
+    @IBAction func sortingLists(_ sender: UISegmentedControl) {
+        taskLists = sender.selectedSegmentIndex == 0
+            ? taskLists.sorted(byKeyPath: "name")
+            : taskLists.sorted(byKeyPath: "date")
+        
+        tableView.reloadData()
     }
     
     
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard let indexPath = tableView.indexPathForSelectedRow else { return }
-        
-        let currentList = currentTaskLists[indexPath.row]
+        let taskList = taskLists[indexPath.row]
         let tasksVC = segue.destination as! TasksViewController
-        tasksVC.currentList = currentList
+        tasksVC.currentList = taskList
     }
     
 }
@@ -173,27 +101,24 @@ class TaskListViewController: UITableViewController {
 //MARK: -Extensions
 extension TaskListViewController {
     
-    func showAlert(for taskList: TaskList?, editingModeIsOn: Bool) {
+    private func showAlert(with taskList: TaskList? = nil, completion: (() -> Void)? = nil) {
         
-        var alert = AlertController()
+        let title = taskList != nil ? "Update" : "New List"
         
-        if !editingModeIsOn {
-            alert = AlertController(title: "New list", message: "Please create new list of tasks", preferredStyle: .alert)
-        } else {
-            alert = AlertController(title: "Editing List", message: "Please edit list name", preferredStyle: .alert)
-        }
+        let alert = AlertController(title: title, message: "Please insert new value", preferredStyle: .alert)
         
-        
-        alert.actionWithTaskList(for: taskList, editingModeIsOn: editingModeIsOn) { newValue in
-            
-            if !editingModeIsOn {
-                let newTaskList = TaskList(value: ["name": newValue])
-                StorageManager.shared.addTaskList(taskList: newTaskList)
+        alert.action(with: taskList) { newValue in
+            if let taskList = taskList, let completion = completion {
+                StorageManager.shared.edit(taskList: taskList, newValue: newValue)
+                completion()
             } else {
-                guard let taskList = taskList else { return }
-                StorageManager.shared.editTaskList(taskList, newName: newValue)
+                let taskList = TaskList()
+                taskList.name = newValue
+                
+                StorageManager.shared.save(taskList: taskList)
+                let rowIndex = IndexPath(row: self.taskLists.count - 1, section: 0)
+                self.tableView.insertRows(at: [rowIndex], with: .automatic)
             }
-            self.tableView.reloadData()
         }
         
         present(alert, animated: true)

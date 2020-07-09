@@ -10,6 +10,7 @@
 		842034E424B0CE2A00654713 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 842034E324B0CE2A00654713 /* Main.storyboard */; };
 		842034E624B0D4FC00654713 /* TasksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842034E524B0D4FC00654713 /* TasksViewController.swift */; };
 		842034E924B0D99C00654713 /* AlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842034E824B0D99C00654713 /* AlertController.swift */; };
+		8483218824B715FD007B4519 /* Extension + UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8483218724B715FD007B4519 /* Extension + UITableViewCell.swift */; };
 		84B88AEF24B0C8230072248E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B88AEE24B0C8230072248E /* AppDelegate.swift */; };
 		84B88AF124B0C8230072248E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B88AF024B0C8230072248E /* SceneDelegate.swift */; };
 		84B88AF824B0C8280072248E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84B88AF724B0C8280072248E /* Assets.xcassets */; };
@@ -26,6 +27,7 @@
 		842034E324B0CE2A00654713 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		842034E524B0D4FC00654713 /* TasksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewController.swift; sourceTree = "<group>"; };
 		842034E824B0D99C00654713 /* AlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertController.swift; sourceTree = "<group>"; };
+		8483218724B715FD007B4519 /* Extension + UITableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension + UITableViewCell.swift"; sourceTree = "<group>"; };
 		84B88AEB24B0C8230072248E /* ToDoListRealm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoListRealm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		84B88AEE24B0C8230072248E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		84B88AF024B0C8230072248E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 			children = (
 				84B88B0924B0CA7A0072248E /* TaskListViewController.swift */,
 				842034E524B0D4FC00654713 /* TasksViewController.swift */,
+				8483218724B715FD007B4519 /* Extension + UITableViewCell.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -273,6 +276,7 @@
 				842034E924B0D99C00654713 /* AlertController.swift in Sources */,
 				84B88B0A24B0CA7A0072248E /* TaskListViewController.swift in Sources */,
 				842034E624B0D4FC00654713 /* TasksViewController.swift in Sources */,
+				8483218824B715FD007B4519 /* Extension + UITableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

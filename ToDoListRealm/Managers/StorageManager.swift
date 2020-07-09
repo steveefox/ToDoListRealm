@@ -15,63 +15,63 @@ class StorageManager {
     
     private init() {}
     
-    func addTaskList(taskList: TaskList) {
-        try! realm.write {
+    func save(taskList: TaskList) {
+        write {
             realm.add(taskList)
         }
     }
     
-    func addTask(in taskList: TaskList, newTask: Task) {
-        try! realm.write {
-            taskList.tasks.append(newTask)
+    func save(task: Task, into taskList: TaskList) {
+        write {
+            taskList.tasks.append(task)
         }
     }
     
-    func deleteTaskList(_ taskList: TaskList) {
-        try! realm.write {
+    func delete(taskList: TaskList) {
+        write {
+            realm.delete(taskList.tasks)
             realm.delete(taskList)
         }
     }
     
-    func deleteTask(_ task: Task) {
-        try! realm.write {
+    func delete(task: Task) {
+        write {
             realm.delete(task)
         }
     }
     
-    func editTaskList(_ taskList: TaskList, newName: String, allIsComplete: Bool = false) {
-        if !allIsComplete {
-            try! realm.write {
-                taskList.name = newName
-            }
-        } else {
-            try! realm.write {
-                for task in taskList.tasks {
-                    task.isComplete = true
-                }
-            }
+    func edit(taskList: TaskList, newValue: String) {
+        write {
+            taskList.name = newValue
         }
     }
     
-    func editTask(_ task: Task, newName: String, newNote: String, isComplete: Bool? = nil ) {
-        
-        if isComplete == nil {
-            try! realm.write {
-                task.name = newName
-                task.note = newNote
-            }
-        } else if isComplete != nil {
-            try! realm.write {
-                if task.isComplete {
-                task.isComplete = false
-                } else {
-                    task.isComplete = true
-                }
-            }
+    func edit(task: Task, name: String, note: String) {
+        write {
+            task.name = name
+            task.note = note
         }
-        
     }
     
+    func done(taskList: TaskList) {
+        write {
+            taskList.tasks.setValue(true, forKey: "isComplete")
+        }
+    }
     
+    func done(task: Task) {
+        write {
+            task.isComplete.toggle()
+        }
+    }
     
+    private func write(_ completion: () -> Void) {
+        do {
+            try realm.write {
+                completion()
+            }
+        } catch let error {
+            print(error.localizedDescription)
+        }
+    }
 }
